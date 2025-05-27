@@ -1,7 +1,13 @@
 import * as bitcoin from 'bitcoinjs-lib';
 
+// Bitcoin mainnet network configuration
+export const MAINNET = bitcoin.networks.bitcoin;
+
 // Bitcoin testnet network configuration
 export const TESTNET = bitcoin.networks.testnet;
+
+// BIP44 derivation path for Bitcoin mainnet
+export const MAINNET_DERIVATION_PATH = "m/44'/0'/0'/0/0";
 
 // BIP44 derivation path for Bitcoin testnet
 export const TESTNET_DERIVATION_PATH = "m/44'/1'/0'/0/0";

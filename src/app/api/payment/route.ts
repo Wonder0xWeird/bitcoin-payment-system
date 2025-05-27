@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PaymentService } from '@/lib/services/PaymentService';
-import { ApiResponse, PaymentRequest } from '@/lib/types';
+import { ApiResponse, PaymentRequestPayload } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,10 +40,7 @@ export async function POST(request: NextRequest) {
     // Generate payment URI for QR code
     const paymentUri = paymentService.generatePaymentUri(paymentRequest);
 
-    const response: ApiResponse<{
-      paymentRequest: PaymentRequest;
-      paymentUri: string;
-    }> = {
+    const response: ApiResponse<PaymentRequestPayload> = {
       success: true,
       data: {
         paymentRequest,
