@@ -30,8 +30,8 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
 - **tiny-secp256k1 v2.2.3** - Elliptic curve cryptography
 
 ### External Services
-- **BlockCypher API** - Bitcoin testnet blockchain data (free API key recommended for best performance)
-- **Bitcoin Testnet** - Safe testing environment
+- **Mempool.space API** - Bitcoin testnet4 blockchain data (no API key required)
+- **Bitcoin Testnet4** - Modern, active testing environment
 
 ## 📋 Prerequisites
 
@@ -52,12 +52,11 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
    npm install
    ```
 
-3. **Set up BlockCypher API (Recommended)**
+3. **No API Setup Required**
    ```bash
-   # For best performance and to avoid rate limits
-   # See BLOCKCYPHER_SETUP.md for detailed instructions
+   # The application uses mempool.space which provides
+   # generous free API limits without requiring authentication
    ```
-   **📖 [Complete Setup Guide](./BLOCKCYPHER_SETUP.md)** - Follow this to get your free API key and avoid rate limiting issues.
 
 4. **Start the development server**
    ```bash
@@ -71,7 +70,7 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
 
 ### 1. Wallet Generation
 - The application automatically generates a new HD wallet when you first visit
-- Each wallet includes a unique Bitcoin testnet address
+- Each wallet includes a unique Bitcoin testnet4 address
 - Click "New Wallet" to generate a fresh wallet at any time
 
 ### 2. Create Payment Request
@@ -152,7 +151,7 @@ src/
 │   ├── services/            # Business logic
 │   │   ├── WalletService.ts # HD wallet operations
 │   │   ├── PaymentService.ts# Payment validation
-│   │   └── BlockchainService.ts # API integration
+│   │   └── BlockchainService.ts # Mempool.space integration
 │   ├── types/               # TypeScript definitions
 │   └── utils/               # Utility functions
 │       ├── bitcoin.ts       # Bitcoin utilities
@@ -168,21 +167,21 @@ src/
 
 ## ⚠️ Important Notes
 
-- **Testnet Only**: This application only works with Bitcoin testnet
+- **Testnet4 Only**: This application only works with Bitcoin testnet4
 - **Educational Purpose**: Built for learning and demonstration
 - **No Persistence**: Wallets are ephemeral and not stored between sessions
-- **API Rate Limits**: Enhanced with proper retry logic and rate limit handling. Free API key provides 500 req/sec vs 3 req/sec without token.
+- **No API Key Required**: Uses mempool.space which provides generous free API limits
 
 ## 🧪 Testing
 
 The application can be tested using:
 
-1. **Bitcoin Testnet Faucets**:
-   - [Bitcoin Testnet Faucet](https://testnet-faucet.mempool.co/)
-   - [Coinfaucet Testnet](https://coinfaucet.eu/en/btc-testnet/)
+1. **Bitcoin Testnet4 Faucets**:
+   - [Mempool.space Testnet4 Faucet](https://mempool.space/testnet4)
+   - [Bitcoin Testnet4 Faucet](https://testnet-faucet.mempool.co/)
 
 2. **Wallet Apps**:
-   - Any Bitcoin wallet supporting testnet
+   - Any Bitcoin wallet supporting testnet4
    - Browser-based wallets for quick testing
 
 ## 🚀 Deployment

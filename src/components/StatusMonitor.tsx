@@ -15,6 +15,7 @@ interface StatusMonitorProps {
 }
 
 export function StatusMonitor({ paymentRequest, paymentUri, onPaymentReceived }: StatusMonitorProps) {
+  const maxAttempts = 10;
   const {
     status,
     isPolling,
@@ -28,8 +29,8 @@ export function StatusMonitor({ paymentRequest, paymentUri, onPaymentReceived }:
     resetPolling
   } = usePaymentPolling(paymentRequest, {
     enabled: true,
-    interval: 10000, // 10 seconds
-    maxAttempts: 360, // 1 hour
+    interval: 30000, // 30 seconds
+    maxAttempts: maxAttempts, // 10 attempts
     onPaymentReceived: (status) => {
       toast.success('Payment received!', {
         duration: 5000,
@@ -144,7 +145,7 @@ export function StatusMonitor({ paymentRequest, paymentUri, onPaymentReceived }:
                     `Rate limited. Waiting to resume...`
                   )
                 ) : (
-                  `Checking every ${currentInterval / 1000}s... (Attempt ${attempts}/360)`
+                  `Checking every ${currentInterval / 1000}s... (Attempt ${attempts}/${maxAttempts})`
                 )}
               </p>
             )}

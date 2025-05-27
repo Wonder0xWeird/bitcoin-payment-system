@@ -63,24 +63,26 @@ export interface TransactionInfo {
   }>;
 }
 
-// BlockCypher Address API Response
-export interface BlockCypherAddressInfo {
+// Mempool.space Address API Response
+export interface MempoolAddressInfo {
   address: string;
-  total_received: number;
-  total_sent: number;
-  balance: number;
-  unconfirmed_balance: number;
-  final_balance: number;
-  n_tx: number;
-  unconfirmed_n_tx: number;
-  final_n_tx: number;
-  tx_url?: string;
-  txrefs?: BlockCypherTXRef[];
-  unconfirmed_txrefs?: BlockCypherTXRef[];
-  hasMore?: boolean;
+  chain_stats: {
+    funded_txo_count: number;
+    funded_txo_sum: number;
+    spent_txo_count: number;
+    spent_txo_sum: number;
+    tx_count: number;
+  };
+  mempool_stats: {
+    funded_txo_count: number;
+    funded_txo_sum: number;
+    spent_txo_count: number;
+    spent_txo_sum: number;
+    tx_count: number;
+  };
 }
 
-// Legacy AddressInfo interface - transformed from BlockCypher data
+// AddressInfo interface - now directly compatible with mempool.space
 export interface AddressInfo {
   address: string;
   chain_stats: {
@@ -99,97 +101,82 @@ export interface AddressInfo {
   };
 }
 
-// BlockCypher Transaction Reference
-export interface BlockCypherTXRef {
-  tx_hash: string;
-  block_height: number;
-  tx_input_n: number;
-  tx_output_n: number;
-  value: number;
-  ref_balance?: number;
-  spent: boolean;
-  confirmations: number;
-  confirmed?: string;
-  double_spend: boolean;
-  script?: string;
-  spent_by?: string;
-  received?: string;
-  receive_count?: number;
-  confidence?: number;
-}
-
-// BlockCypher Transaction Response
-export interface BlockCypherTransaction {
-  hash: string;
-  block_height: number;
-  block_hash?: string;
-  block_index?: number;
-  addresses: string[];
-  total: number;
-  fees: number;
+// Mempool.space Transaction Response
+export interface MempoolTransaction {
+  txid: string;
+  version: number;
+  locktime: number;
+  vin: MempoolTXInput[];
+  vout: MempoolTXOutput[];
   size: number;
-  vsize?: number;
-  preference: string;
-  relayed_by?: string;
-  received: string;
-  ver: number;
-  lock_time: number;
-  double_spend: boolean;
-  vin_sz: number;
-  vout_sz: number;
-  confirmations: number;
-  confirmed?: string;
-  inputs: BlockCypherTXInput[];
-  outputs: BlockCypherTXOutput[];
-  opt_in_rbf?: boolean;
-  confidence?: number;
-  receive_count?: number;
-  change_address?: string;
-  double_of?: string;
-  data_protocol?: string;
-  hex?: string;
-  next_inputs?: string;
-  next_outputs?: string;
+  weight: number;
+  sigops?: number;
+  fee: number;
+  status: {
+    confirmed: boolean;
+    block_height?: number;
+    block_hash?: string;
+    block_time?: number;
+  };
 }
 
-// BlockCypher Transaction Input
-export interface BlockCypherTXInput {
-  prev_hash?: string;
-  output_index?: number;
-  output_value?: number;
-  script_type: string;
-  script: string;
-  addresses: string[];
+// Mempool.space Transaction Input
+export interface MempoolTXInput {
+  txid: string;
+  vout: number;
+  prevout: {
+    scriptpubkey: string;
+    scriptpubkey_asm: string;
+    scriptpubkey_type: string;
+    scriptpubkey_address?: string;
+    value: number;
+  };
+  scriptsig: string;
+  scriptsig_asm: string;
+  is_coinbase: boolean;
   sequence: number;
-  age?: number;
-  wallet_name?: string;
-  wallet_token?: string;
 }
 
-// BlockCypher Transaction Output  
-export interface BlockCypherTXOutput {
+// Mempool.space Transaction Output  
+export interface MempoolTXOutput {
+  scriptpubkey: string;
+  scriptpubkey_asm: string;
+  scriptpubkey_type: string;
+  scriptpubkey_address?: string;
   value: number;
-  script: string;
-  addresses: string[];
-  script_type: string;
-  spent_by?: string;
-  data_hex?: string;
-  data_string?: string;
 }
 
-// Rate Limit Error Information
-export interface RateLimitError {
+// Mempool.space UTXO
+export interface MempoolUTXO {
+  txid: string;
+  vout: number;
+  status: {
+    confirmed: boolean;
+    block_height?: number;
+    block_hash?: string;
+    block_time?: number;
+  };
+  value: number;
+}
+
+// API Error Information
+export interface ApiError {
   isRateLimit: boolean;
   retryAfter?: number; // seconds to wait
-  remaining?: number; // requests remaining
-  resetTime?: number; // unix timestamp when limit resets
+  message?: string;
+  statusCode?: number;
 }
 
-export type ApiResponse<T> = {
+
+export type ApiSuccessResponse<T> = {
   success: true;
   data: T;
-} | {
+}
+
+export type ApiErrorResponse = {
   success: false;
   error: string;
-  rateLimitInfo?: RateLimitError;
-}; 
+  apiError?: ApiError;
+};
+
+export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse; 

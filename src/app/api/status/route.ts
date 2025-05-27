@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PaymentService } from '@/lib/services/PaymentService';
-import { ApiResponse, PaymentStatus } from '@/lib/types';
-import { BlockCypherRateLimitError } from '@/lib/services/BlockchainService';
+import { ApiErrorResponse, ApiResponse, PaymentStatus } from '@/lib/types';
+import { MempoolApiError } from '@/lib/services/BlockchainService';
 
 export async function GET(request: NextRequest) {
   try {
@@ -61,16 +61,16 @@ export async function GET(request: NextRequest) {
     console.error('Error checking payment status:', error);
 
     // Handle rate limiting specifically
-    if (error instanceof BlockCypherRateLimitError) {
-      const errorResponse: ApiResponse<never> = {
+    if (error instanceof MempoolApiError) {
+      const errorResponse: ApiErrorResponse = {
         success: false,
         error: error.message,
-        rateLimitInfo: error.rateLimitInfo
+        apiError: error.apiError
       };
       return NextResponse.json(errorResponse, { status: 429 });
     }
 
-    const errorResponse: ApiResponse<never> = {
+    const errorResponse: ApiErrorResponse = {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to check payment status'
     };

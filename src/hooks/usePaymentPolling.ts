@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { PaymentRequest, PaymentStatus, ApiResponse, RateLimitError } from '@/lib/types';
+import { PaymentRequest, PaymentStatus, ApiResponse, ApiError, ApiErrorResponse } from '@/lib/types';
 
 interface PaymentPollingOptions {
   enabled: boolean;
@@ -7,7 +7,7 @@ interface PaymentPollingOptions {
   maxAttempts?: number;
   onPaymentReceived?: (status: PaymentStatus) => void;
   onError?: (error: string) => void;
-  onRateLimit?: (rateLimitInfo: RateLimitError) => void;
+  onRateLimit?: (rateLimitInfo: ApiError) => void;
 }
 
 interface PaymentPollingResult {
@@ -37,7 +37,7 @@ export function usePaymentPolling(
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
-  const maxAttempts = options.maxAttempts || 360; // 1 hour at 10-second intervals
+  const maxAttempts = options.maxAttempts || 360; // 360 = 1 hour at 10-second intervals
   const baseInterval = options.interval;
   const maxInterval = 60000; // Maximum 60 seconds between requests
 
@@ -98,36 +98,40 @@ export function usePaymentPolling(
       const response = await fetch(`/api/status?${params}`);
       const data: ApiResponse<PaymentStatus> = await response.json();
 
+      console.log('🔍 Payment status response:', data);
+
       if (response.status === 429) {
         // Handle rate limiting
         setIsRateLimited(true);
-        const rateLimitInfo = (data as { success: false; error: string; rateLimitInfo?: RateLimitError }).rateLimitInfo;
+        const rateLimitInfo = (data as ApiErrorResponse).apiError;
+        console.log('🔍 Rate limit info:', rateLimitInfo);
 
-        if (rateLimitInfo) {
-          const retryDelay = rateLimitInfo.retryAfter ? rateLimitInfo.retryAfter * 1000 :
-            Math.min(currentInterval * 2, maxInterval); // Exponential backoff
+        // if (rateLimitInfo) {
+        //   const retryDelay = rateLimitInfo.retryAfter ? rateLimitInfo.retryAfter * 1000 :
+        //     Math.min(currentInterval * 2, maxInterval); // Exponential backoff
 
-          setCurrentInterval(retryDelay);
-          startCountdown(retryDelay);
+        //   setCurrentInterval(retryDelay);
+        //   startCountdown(retryDelay);
 
-          console.warn(`⚠️ Rate limited. Waiting ${retryDelay / 1000}s before next attempt.`);
-          options.onRateLimit?.(rateLimitInfo);
+        //   console.warn(`⚠️ Rate limited. Waiting ${retryDelay / 1000}s before next attempt.`);
+        //   options.onRateLimit?.(rateLimitInfo);
 
-          // Clear the interval and set a new one with the backoff delay
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
+        //   // Clear the interval and set a new one with the backoff delay
+        //   if (intervalRef.current) {
+        //     clearInterval(intervalRef.current);
+        //     intervalRef.current = null;
+        //   }
 
-          setTimeout(() => {
-            if (isPolling) {
-              setIsRateLimited(false);
-              intervalRef.current = setInterval(checkPaymentStatus, retryDelay);
-            }
-          }, retryDelay);
+        //   setTimeout(() => {
+        //     if (isPolling) {
+        //       setIsRateLimited(false);
+        //       intervalRef.current = setInterval(checkPaymentStatus, retryDelay);
+        //     }
+        //   }, retryDelay);
 
-          return; // Don't increment attempts for rate limit
-        }
+        //   return; // Don't increment attempts for rate limit
+        // }
+        return stopPolling();
       }
 
       if (data.success) {
