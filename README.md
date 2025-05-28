@@ -136,7 +136,6 @@ The application can be tested using:
 6. **Multi-signature**: Support for multi-sig wallets
 7. **Lightning Network**: Integration with Lightning for instant payments
 8. **Security**: Hardware wallet integration for production use
-9. ****
 
 
 ## 🏗 Project Structure
@@ -201,6 +200,11 @@ src/
 │       └── http.ts               # HTTP utilities & errors
 ```
 
+### Cursor + Claude 4.0 Dev Logs
+
+The initial project planning and scaffolding was completed with assistance from Claude 4.0 in Cursor.
+
+Complete chat and revision history from this phase can be found in the `.cursor` directory in the project root.
 
 ## 📄 License
 
@@ -212,6 +216,7 @@ This project is licensed under the MIT License
 - [bitcoinjs-lib](https://github.com/bitcoinjs/bitcoinjs-lib) for Bitcoin operations
 - [Next.js](https://nextjs.org/) for the amazing framework
 - Bitcoin community for the standards and protocols
+- Cursor and Claude 4.0 Sonnet as cognitive collaborators
 
 ---
 

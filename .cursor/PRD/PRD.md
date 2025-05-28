@@ -246,8 +246,8 @@ src/
 - [x] QR codes display correctly and are scannable
 - [x] Payment detection works within 30 seconds of transaction broadcast
 - [x] UI is responsive on mobile and desktop
-- [ ] All error states are handled gracefully
-- [ ] Code is clean, modular, and well-documented
+- [x] All error states are handled gracefully
+- [x] Code is clean, modular, and well-documented
 
 ## 8. Potential Improvements (Future Considerations)
 
