@@ -8,10 +8,9 @@ import { formatBtc } from '@/lib/utils/bitcoin';
 
 interface QRDisplayProps {
   paymentRequest: PaymentRequest;
-  paymentUri: string;
 }
 
-export function QRDisplay({ paymentRequest, paymentUri }: QRDisplayProps) {
+export function RequestInfo({ paymentRequest }: QRDisplayProps) {
   const [copied, setCopied] = useState<string | null>(null);
 
   const copyToClipboard = async (text: string, type: string) => {
@@ -26,11 +25,11 @@ export function QRDisplay({ paymentRequest, paymentUri }: QRDisplayProps) {
 
   const openInWallet = () => {
     // Open payment URI in default Bitcoin wallet
-    window.open(paymentUri, '_blank');
+    window.open(paymentRequest.paymentUri, '_blank');
   };
 
   return (
-    <div className="card">
+    <div className="card mb-6">
       <div className="text-center mb-4 sm:mb-6">
         <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">
           Payment Request Created
@@ -44,13 +43,12 @@ export function QRDisplay({ paymentRequest, paymentUri }: QRDisplayProps) {
       <div className="flex justify-center mb-4 sm:mb-6">
         <div className="qr-container">
           <QRCodeSVG
-            value={paymentUri}
+            value={paymentRequest.paymentUri}
             size={160}
             className="sm:w-[200px] sm:h-[200px]"
             bgColor="#FFFFFF"
             fgColor="#000000"
             level="M"
-            includeMargin={true}
           />
         </div>
       </div>
@@ -88,7 +86,7 @@ export function QRDisplay({ paymentRequest, paymentUri }: QRDisplayProps) {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Bitcoin Address
         </label>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="flex sm:flex-row items-stretch gap-2">
           <div className="flex-1 min-w-0">
             <input
               type="text"
@@ -116,18 +114,17 @@ export function QRDisplay({ paymentRequest, paymentUri }: QRDisplayProps) {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Payment URI (BIP21)
         </label>
-        <div className="flex flex-col sm:flex-row items-stretch gap-2">
+        <div className="flex sm:flex-row items-stretch gap-2">
           <div className="flex-1 min-w-0">
-            <textarea
-              value={paymentUri}
+            <input
+              value={paymentRequest.paymentUri}
               readOnly
-              rows={2}
               className="form-input font-mono text-xs sm:text-sm resize-none sm:rows-3"
             />
           </div>
           <button
-            onClick={() => copyToClipboard(paymentUri, 'uri')}
-            className="btn-secondary p-3 flex-shrink-0 self-stretch sm:self-start"
+            onClick={() => copyToClipboard(paymentRequest.paymentUri, 'uri')}
+            className="btn-secondary p-3 flex-shrink-0 self-stretch sm:self-auto"
             title="Copy payment URI"
           >
             {copied === 'uri' ? (
@@ -147,22 +144,6 @@ export function QRDisplay({ paymentRequest, paymentUri }: QRDisplayProps) {
         >
           <ExternalLink className="w-4 h-4" />
           Open in Wallet
-        </button>
-        <button
-          onClick={() => copyToClipboard(paymentUri, 'share')}
-          className="btn-secondary flex items-center justify-center gap-2"
-        >
-          {copied === 'share' ? (
-            <>
-              <Check className="w-4 h-4 text-green-600" />
-              Copied!
-            </>
-          ) : (
-            <>
-              <Copy className="w-4 h-4" />
-              Copy Payment Link
-            </>
-          )}
         </button>
       </div>
 

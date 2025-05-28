@@ -1,41 +1,38 @@
 import { NextResponse } from 'next/server';
 import { WalletService } from '@/lib/services/WalletService';
-import { ApiErrorResponse, ApiSuccessResponse, WalletInfo } from '@/lib/types';
+import { ApiErrorResponse, ApiSuccessResponse, PublicWalletInfo } from '@/lib/types';
+import { HTTP_STATUS_INTERNAL_SERVER_ERROR } from '@/lib/utils/http';
 
 export async function POST() {
   try {
-    const walletService = WalletService.getInstance();
-
-    // Generate a new HD wallet
-    const wallet = walletService.generateHDWallet();
+    const wallet = WalletService.generateHDWallet();
 
     // Note: In production, HD wallet info including mnemonic and private key 
-    // would be encrypted and stored securely for the user
+    // could be encrypted and persisted securely in a database for the user to use later
 
-    const publicWalletInfo: WalletInfo = {
-      address: wallet.address,
-      publicKey: wallet.publicKey,
-    };
-
-    const response: ApiSuccessResponse<WalletInfo> = {
+    const response: ApiSuccessResponse<PublicWalletInfo> = {
       success: true,
-      data: publicWalletInfo
+      data: {
+        address: wallet.address,
+        publicKey: wallet.publicKey,
+      }
     };
 
     return NextResponse.json(response, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating wallet:', error);
 
     const errorResponse: ApiErrorResponse = {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to generate wallet'
+      error: error.message || 'Failed to generate wallet'
     };
 
-    return NextResponse.json(errorResponse, { status: 500 });
+    return NextResponse.json(errorResponse, { status: error.status || HTTP_STATUS_INTERNAL_SERVER_ERROR });
   }
 }
 
 export async function GET() {
   // For demo purposes, we'll also allow GET to generate a wallet
+  // In production, this request would instead return an authenticated user's persisted wallet info
   return POST();
 } 

@@ -5,7 +5,7 @@ export interface HDWallet {
   publicKey: string;
 }
 
-export interface WalletInfo {
+export interface PublicWalletInfo {
   address: string;
   publicKey: string;
 }

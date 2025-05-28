@@ -1,20 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { PaymentRequest, PaymentStatus, ApiResponse, ApiError, ApiErrorResponse } from '@/lib/types';
-
-interface PaymentPollingOptions {
-  enabled: boolean;
-  interval: number; // in milliseconds
-  maxAttempts?: number;
-  onPaymentReceived?: (status: PaymentStatus) => void;
-  onError?: (error: string) => void;
-  onRateLimit?: (rateLimitInfo: ApiError) => void;
-}
+import toast from 'react-hot-toast';
+import { PaymentRequest, PaymentReceipt, ApiResponse } from '@/lib/types';
 
 interface PaymentPollingResult {
-  status: PaymentStatus | null;
+  receipt: PaymentReceipt | null;
   isPolling: boolean;
-  error: string | null;
+  pollError: string | null;
   attempts: number;
+  maxAttempts: number;
   currentInterval: number;
   isRateLimited: boolean;
   nextAttemptIn?: number;
@@ -23,23 +16,26 @@ interface PaymentPollingResult {
   resetPolling: () => void;
 }
 
-export function usePaymentPolling(
-  paymentRequest: PaymentRequest | null,
-  options: PaymentPollingOptions
-): PaymentPollingResult {
-  const [status, setStatus] = useState<PaymentStatus | null>(null);
+export function usePaymentPolling(paymentRequest: PaymentRequest): PaymentPollingResult {
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
+
+  const maxAttempts = 180;
+  const baseInterval = 60000;
+
+  const [receipt, setReceipt] = useState<PaymentReceipt | null>(null);
   const [isPolling, setIsPolling] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [pollError, setPollError] = useState<string | null>(null);
   const [attempts, setAttempts] = useState(0);
-  const [currentInterval, setCurrentInterval] = useState(options.interval);
+  const [currentInterval, setCurrentInterval] = useState(baseInterval);
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [nextAttemptIn, setNextAttemptIn] = useState<number | undefined>();
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const countdownRef = useRef<NodeJS.Timeout | null>(null);
-  const maxAttempts = options.maxAttempts || 360; // 360 = 1 hour at 10-second intervals
-  const baseInterval = options.interval;
-  const maxInterval = 60000; // Maximum 60 seconds between requests
+  // Auto-start polling on mount, cleanup on unmount
+  useEffect(() => {
+    startPolling();
+    return () => resetPolling();
+  }, []);
 
   const stopPolling = useCallback(() => {
     setIsPolling(false);
@@ -56,36 +52,38 @@ export function usePaymentPolling(
 
   const resetPolling = useCallback(() => {
     stopPolling();
-    setStatus(null);
-    setError(null);
+    setReceipt(null);
+    setPollError(null);
     setAttempts(0);
     setCurrentInterval(baseInterval);
     setIsRateLimited(false);
     setNextAttemptIn(undefined);
-  }, [stopPolling, baseInterval]);
+  }, []);
 
-  // Start countdown for next attempt
   const startCountdown = useCallback((delayMs: number) => {
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+
     let remainingSeconds = Math.ceil(delayMs / 1000);
     setNextAttemptIn(remainingSeconds);
 
     countdownRef.current = setInterval(() => {
-      remainingSeconds -= 1;
-      setNextAttemptIn(remainingSeconds);
-
-      if (remainingSeconds <= 0) {
-        setNextAttemptIn(undefined);
+      setNextAttemptIn(prev => {
+        const newValue = (prev || 0) - 1;
+        if (newValue > 0) return newValue;
         if (countdownRef.current) {
           clearInterval(countdownRef.current);
           countdownRef.current = null;
         }
-      }
+        return undefined;
+      });
     }, 1000);
   }, []);
 
   const checkPaymentStatus = useCallback(async () => {
     if (!paymentRequest) return;
-
     try {
       const params = new URLSearchParams({
         address: paymentRequest.address,
@@ -96,141 +94,97 @@ export function usePaymentPolling(
       });
 
       const response = await fetch(`/api/status?${params}`);
-      const data: ApiResponse<PaymentStatus> = await response.json();
-
-      console.log('🔍 Payment status response:', data);
-
-      if (response.status === 429) {
-        // Handle rate limiting
-        setIsRateLimited(true);
-        const rateLimitInfo = (data as ApiErrorResponse).apiError;
-        console.log('🔍 Rate limit info:', rateLimitInfo);
-
-        // if (rateLimitInfo) {
-        //   const retryDelay = rateLimitInfo.retryAfter ? rateLimitInfo.retryAfter * 1000 :
-        //     Math.min(currentInterval * 2, maxInterval); // Exponential backoff
-
-        //   setCurrentInterval(retryDelay);
-        //   startCountdown(retryDelay);
-
-        //   console.warn(`⚠️ Rate limited. Waiting ${retryDelay / 1000}s before next attempt.`);
-        //   options.onRateLimit?.(rateLimitInfo);
-
-        //   // Clear the interval and set a new one with the backoff delay
-        //   if (intervalRef.current) {
-        //     clearInterval(intervalRef.current);
-        //     intervalRef.current = null;
-        //   }
-
-        //   setTimeout(() => {
-        //     if (isPolling) {
-        //       setIsRateLimited(false);
-        //       intervalRef.current = setInterval(checkPaymentStatus, retryDelay);
-        //     }
-        //   }, retryDelay);
-
-        //   return; // Don't increment attempts for rate limit
-        // }
-        return stopPolling();
-      }
+      const data: ApiResponse<PaymentReceipt> = await response.json();
 
       if (data.success) {
-        setStatus(data.data);
-        setError(null);
+        setReceipt(data.data);
+        setPollError(null);
         setIsRateLimited(false);
 
-        // Reset to base interval on successful request
         if (currentInterval !== baseInterval) {
           setCurrentInterval(baseInterval);
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
-            intervalRef.current = setInterval(checkPaymentStatus, baseInterval);
+            intervalRef.current = setInterval(checkPaymentStatus, currentInterval);
           }
         }
 
-        // If payment is confirmed, stop polling and notify
-        if (data.data.status === 'confirmed') {
+        if (data.data?.confirmed) {
           stopPolling();
-          options.onPaymentReceived?.(data.data);
-        } else if (data.data.status === 'failed') {
-          stopPolling();
-          setError('Payment failed or timed out');
-          options.onError?.('Payment failed or timed out');
+          toast.success('Payment received!', {
+            icon: '₿',
+            duration: 5000,
+          });
         }
       } else {
-        throw new Error(data.error || 'Failed to check payment status');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(errorMessage);
-      options.onError?.(errorMessage);
+        if (response.status === 429) {
+          // Note: In production, we would likely use a persistent server (i.e. not Next.js/Vercel serverless)
+          // to manage rate limiting more effectively but for demo purposes we pass the rate limit
+          // info back to the client to handle for polling demo
 
-      // If we've reached max attempts, stop polling
-      if (attempts >= maxAttempts) {
-        stopPolling();
+          setIsRateLimited(true);
+          const retryAfter = data.retryAfter ? data.retryAfter * 1000 : currentInterval * 2; // Exponential backoff
+
+          setCurrentInterval(retryAfter);
+          startCountdown(retryAfter);
+
+          console.warn(`⚠️ Rate limited. Waiting ${retryAfter / 1000}s before next attempt.`);
+          toast.error(`Rate limited. Waiting ${retryAfter / 1000}s before next attempt.`, {
+            duration: 5000,
+          });
+
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+
+          intervalRef.current = setInterval(checkPaymentStatus, retryAfter);
+        } else {
+          throw new Error(data.error || 'Failed to check payment status');
+        }
       }
+    } catch (error: any) {
+      const errorMessage = error.message || 'Unknown error occurred';
+      setPollError(errorMessage);
+      toast.error(`Payment monitoring error: ${errorMessage}`, {
+        duration: 5000,
+      });
     }
 
     setAttempts(prev => prev + 1);
-  }, [
-    paymentRequest,
-    attempts,
-    maxAttempts,
-    options,
-    stopPolling,
-    currentInterval,
-    baseInterval,
-    maxInterval,
-    isPolling,
-    startCountdown
-  ]);
+  }, [paymentRequest, currentInterval]);
 
   const startPolling = useCallback(() => {
-    if (!paymentRequest || isPolling) return;
+    if (isPolling || !paymentRequest) return;
 
     setIsPolling(true);
-    setError(null);
+    setPollError(null);
     setAttempts(0);
     setIsRateLimited(false);
     setCurrentInterval(baseInterval);
 
-    // Check immediately
     checkPaymentStatus();
+    intervalRef.current = setInterval(checkPaymentStatus, baseInterval);
+  }, [paymentRequest, checkPaymentStatus]);
 
-    // Set up interval for periodic checks
-    intervalRef.current = setInterval(checkPaymentStatus, currentInterval);
-  }, [paymentRequest, isPolling, checkPaymentStatus, currentInterval, baseInterval]);
-
-  // Auto-start polling when enabled and payment request is available
-  useEffect(() => {
-    if (options.enabled && paymentRequest && !isPolling) {
-      startPolling();
-    } else if (!options.enabled && isPolling) {
-      stopPolling();
-    }
-  }, [options.enabled, paymentRequest, isPolling, startPolling, stopPolling]);
 
   // Stop polling if max attempts reached
   useEffect(() => {
-    if (attempts >= maxAttempts && isPolling) {
+    if (isPolling && attempts >= maxAttempts) {
       stopPolling();
-      setError('Maximum polling attempts reached');
-      options.onError?.('Payment monitoring timed out');
+      setPollError('Maximum polling attempts reached');
+      toast.error(`Payment monitoring timed out`, {
+        duration: 5000,
+      });
     }
-  }, [attempts, maxAttempts, isPolling, stopPolling, options]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopPolling();
-    };
-  }, [stopPolling]);
+  }, [attempts, isPolling]);
 
   return {
-    status,
+    receipt,
     isPolling,
-    error,
+    pollError,
     attempts,
+    maxAttempts,
     currentInterval,
     isRateLimited,
     nextAttemptIn,

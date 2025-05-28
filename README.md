@@ -1,23 +1,25 @@
 # Bitcoin Payment System
 
-A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wallet generation, QR code payments, and real-time transaction monitoring on Bitcoin testnet.
+A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wallet generation, QR code payments, and real-time transaction monitoring on Bitcoin Testnet4.
+
 
 ## 🚀 Features
 
 - **HD Wallet Generation**: Automatic generation of hierarchical deterministic wallets using BIP44 derivation paths
 - **Payment Requests**: Create payment requests with custom amounts and generate BIP21-compatible URIs
 - **QR Code Generation**: Scannable QR codes for easy mobile wallet integration
-- **Real-time Monitoring**: Continuous monitoring of Bitcoin testnet for incoming payments
+- **Real-time Monitoring**: Continuous monitoring of Bitcoin Testnet4 for incoming payments
 - **Responsive Design**: Mobile-first design that works seamlessly across all devices
 - **Toast Notifications**: Real-time feedback for all user actions and payment status updates
 - **Error Handling**: Comprehensive error handling with user-friendly error messages
 
+
 ## 🛠 Tech Stack
 
 ### Frontend
-- **Next.js 15.3** - React framework with App Router
 - **TypeScript** - Type-safe development
-- **Tailwind CSS v4** - Utility-first CSS framework
+- **Next.js 15.3** - Single Page App via React framework
+- **Tailwind CSS v3** - Utility-first CSS framework
 - **Lucide React** - Modern icon library
 - **React Hot Toast** - Toast notification system
 - **QRCode.react** - QR code generation
@@ -30,8 +32,9 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
 - **tiny-secp256k1 v2.2.3** - Elliptic curve cryptography
 
 ### External Services
-- **Mempool.space API** - Bitcoin testnet4 blockchain data (no API key required)
+- **Mempool.space API** - Bitcoin Testnet4 blockchain REST API (no API key required)
 - **Bitcoin Testnet4** - Modern, active testing environment
+
 
 ## 📋 Prerequisites
 
@@ -39,11 +42,12 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
 - npm or yarn package manager
 - Modern web browser with JavaScript enabled
 
+
 ## 🔧 Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Wonder0xWeird/bitcoin-payment-system.git
    cd bitcoin-payment-system
    ```
 
@@ -52,30 +56,25 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
    npm install
    ```
 
-3. **No API Setup Required**
-   ```bash
-   # The application uses mempool.space which provides
-   # generous free API limits without requiring authentication
-   ```
-
-4. **Start the development server**
+3. **Start the development server**
    ```bash
    npm run dev
    ```
 
-5. **Open your browser**
+4. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
+
 
 ## 📱 Usage Guide
 
 ### 1. Wallet Generation
 - The application automatically generates a new HD wallet when you first visit
-- Each wallet includes a unique Bitcoin testnet4 address
-- Click "New Wallet" to generate a fresh wallet at any time
+- Each wallet includes a unique Bitcoin Testnet4 address
+- Click the new wallet button in the header to generate a fresh wallet at any time
 
 ### 2. Create Payment Request
 - Enter the desired Bitcoin amount (supports up to 8 decimal places)
-- Use quick amount buttons for common values (0.001, 0.01, 0.1, 1 BTC)
+- Use quick amount buttons for common values (e.g. 0.001, 0.01, 0.1, etc. BTC)
 - Click "Create Payment Request" to generate the request
 
 ### 3. Share Payment Information
@@ -86,84 +85,38 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
 
 ### 4. Monitor Payment Status
 - Click "Start Payment Monitoring" to begin real-time monitoring
-- System checks for payments every 10 seconds
+- System checks for payments every 60 seconds
+- Pause/Resume/Restart monitoring with the control buttons
 - Receive instant notifications when payments arrive
-- View transaction details on blockchain explorer
+- Track confirmations of received payments direclty in the app
+- View transaction details on Mempool.space blockchain explorer
 
 ## 🔑 Bitcoin Standards Implemented
-
 - **BIP32**: Hierarchical Deterministic Wallets
 - **BIP39**: Mnemonic code for generating deterministic keys
 - **BIP44**: Multi-Account Hierarchy for Deterministic Wallets
 - **BIP21**: URI Scheme for Bitcoin payments
 - **P2WPKH**: Pay to Witness Public Key Hash (SegWit)
 
-## 🌐 API Endpoints
 
-### POST /api/wallet
-Generate a new HD wallet
-```json
-{
-  "success": true,
-  "data": {
-    "address": "tb1q...",
-    "publicKey": "03...",
-    "mnemonic": "word1 word2 ..."
-  }
-}
-```
+## 🧪 Testing
 
-### POST /api/payment
-Create a payment request
-```json
-{
-  "address": "tb1q...",
-  "amount": 0.001,
-  "label": "Payment Request",
-  "message": "Optional message"
-}
-```
+The application can be tested using:
 
-### GET /api/status
-Check payment status
-```
-GET /api/status?address=tb1q...&amount=0.001&createdAt=2024-01-01T00:00:00.000Z
-```
+1. **Bitcoin Testnet4 Faucets**:
+   - [Mempool.space Testnet4 Faucet](https://mempool.space/testnet4/faucet)
 
-## 🏗 Project Structure
+2. **Wallet Apps**:
+   - Any Bitcoin wallet supporting Testnet4
+      - Example: [BitPay Testnet4 Wallet Setup](https://support.bitpay.com/hc/en-us/articles/360015463612-How-to-Create-a-Testnet-Wallet)
 
-```
-src/
-├── app/                     # Next.js App Router
-│   ├── api/                 # API routes
-│   │   ├── wallet/route.ts  # Wallet generation
-│   │   ├── payment/route.ts # Payment requests
-│   │   └── status/route.ts  # Payment status
-│   ├── layout.tsx           # Root layout
-│   └── page.tsx             # Main application
-├── components/              # React components
-│   ├── PaymentForm.tsx      # Payment amount input
-│   ├── QRDisplay.tsx        # QR code and payment info
-│   └── StatusMonitor.tsx    # Payment monitoring
-├── hooks/                   # Custom React hooks
-│   └── usePaymentPolling.ts # Payment polling logic
-├── lib/                     # Core libraries
-│   ├── services/            # Business logic
-│   │   ├── WalletService.ts # HD wallet operations
-│   │   ├── PaymentService.ts# Payment validation
-│   │   └── BlockchainService.ts # Mempool.space integration
-│   ├── types/               # TypeScript definitions
-│   └── utils/               # Utility functions
-│       ├── bitcoin.ts       # Bitcoin utilities
-│       └── validation.ts    # Input validation
-```
 
 ## 🛡 Security Features
 
-- **Server-side Key Generation**: Private keys never leave the server
+- **Server-side Key Generation**: Private keys + mnemonic never leave the server
 - **Input Validation**: Comprehensive validation of all user inputs
 - **Error Handling**: Graceful handling of API failures and network issues
-- **Testnet Only**: Safe testing environment with no real Bitcoin at risk
+- **Testnet4 Only**: Safe testing environment with no real Bitcoin at risk
 
 ## ⚠️ Important Notes
 
@@ -172,47 +125,90 @@ src/
 - **No Persistence**: Wallets are ephemeral and not stored between sessions
 - **No API Key Required**: Uses mempool.space which provides generous free API limits
 
-## 🧪 Testing
+## 🔮 Potential Improvements (Future Considerations)
 
-The application can be tested using:
+1. **Multiple Addresses**: Generate new address for each payment using HD wallet functionality
+2. **Wallet Security**: Store wallet private key and mnemonic with encryption
+3. **Payment History**: Store and display previous transactions
+4. **Pagination**: Add pagination logic for querying wallets with many transactions
+4. **Websockets**: Real-time updates instead of polling
+5. **Fee Estimation**: Display recommended transaction fees
+6. **Multi-signature**: Support for multi-sig wallets
+7. **Lightning Network**: Integration with Lightning for instant payments
+8. **Security**: Hardware wallet integration for production use
+9. ****
 
-1. **Bitcoin Testnet4 Faucets**:
-   - [Mempool.space Testnet4 Faucet](https://mempool.space/testnet4)
-   - [Bitcoin Testnet4 Faucet](https://testnet-faucet.mempool.co/)
 
-2. **Wallet Apps**:
-   - Any Bitcoin wallet supporting testnet4
-   - Browser-based wallets for quick testing
+## 🏗 Project Structure
 
-## 🚀 Deployment
-
-### Vercel (Recommended)
-```bash
-npm run build
-vercel --prod
+```
+src/
+├── app/                          # Next.js App Router
+│   ├── api/                      # API routes
+│   │   ├── wallet/route.ts       # Wallet generation
+│   │   ├── payment/route.ts      # Payment requests
+│   │   └── status/route.ts       # Payment status
+│   ├── layout.tsx                # Root layout with providers
+│   ├── page.tsx                  # Main application page
+│   ├── globals.css               # Global styles
+│   └── favicon.ico               # App icon
+├── components/                   # React components
+│   ├── Header/                   # App header components
+│   │   ├── index.tsx             # Header main component
+│   │   ├── Branding.tsx          # App logo and title
+│   │   └── Profile.tsx           # Wallet info and actions
+│   ├── PaymentForm/              # Payment creation components
+│   │   ├── index.tsx             # PaymentForm main component
+│   │   ├── Title.tsx             # Form title
+│   │   ├── Instructions.tsx      # User instructions
+│   │   └── Form/                 # Form components
+│   │       ├── index.tsx         # Form logic and layout
+│   │       ├── Header.tsx        # Form header
+│   │       ├── PresetAmounts.tsx # Quick amount buttons
+│   │       └── SubmitButton.tsx  # Submit button component
+│   ├── PaymentMonitor/           # Payment monitoring components
+│   │   ├── index.tsx             # PaymentMonitor main component
+│   │   ├── Header.tsx            # Monitor header
+│   │   ├── Instructions.tsx      # Monitoring instructions
+│   │   ├── RequestInfo.tsx       # Payment request details & QR
+│   │   ├── Status.tsx            # Payment status display
+│   │   ├── ControllButtons.tsx   # Start/stop/pause controls
+│   │   ├── PollError.tsx         # General polling errors
+│   │   └── RateLimitError.tsx    # Rate limit specific errors
+│   ├── ApplicationProvider.tsx   # App context provider
+│   ├── Loading.tsx               # Loading spinner component
+│   ├── ErrorInfo.tsx             # Error display component
+│   ├── Footer.tsx                # App footer
+│   └── index.ts                  # Component exports
+├── hooks/                        # Custom React hooks
+│   └── usePaymentPolling.ts      # Payment polling logic
+├── lib/                          # Core libraries
+│   ├── services/                 # Business logic services
+│   │   ├── WalletService.ts      # HD wallet operations
+│   │   ├── PaymentService.ts     # Payment validation & creation
+│   │   ├── BlockchainService.ts  # Bitcoin blockchain operations
+│   │   └── MempoolHttpService.ts # Mempool.space API client
+│   ├── types/                    # TypeScript definitions
+│   │   ├── index.ts              # Type exports
+│   │   ├── api.ts                # API response types
+│   │   ├── payment.ts            # Payment related types
+│   │   ├── wallet.ts             # Wallet types
+│   │   ├── transaction.ts        # Transaction types
+│   │   └── provider.ts           # Mempool provider types
+│   └── utils/                    # Utility functions
+│       ├── bitcoin.ts            # Bitcoin utilities
+│       ├── validation.ts         # Input validation
+│       └── http.ts               # HTTP utilities & errors
 ```
 
-### Docker
-```bash
-docker build -t bitcoin-payment-system .
-docker run -p 3000:3000 bitcoin-payment-system
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License
 
 ## 🙏 Acknowledgments
 
-- [BlockCypher](https://www.blockcypher.com/) for the reliable Bitcoin API
+- [Mempool.space](https://mempool.space/) for the reliable Bitcoin API
 - [bitcoinjs-lib](https://github.com/bitcoinjs/bitcoinjs-lib) for Bitcoin operations
 - [Next.js](https://nextjs.org/) for the amazing framework
 - Bitcoin community for the standards and protocols

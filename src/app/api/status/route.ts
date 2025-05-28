@@ -1,120 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PaymentService } from '@/lib/services/PaymentService';
-import { ApiErrorResponse, ApiResponse, PaymentStatus } from '@/lib/types';
-import { MempoolApiError } from '@/lib/services/BlockchainService';
+import { ApiErrorResponse, ApiResponse, PaymentReceipt } from '@/lib/types';
+import { validatePaymentAmount, validateDate, validateBitcoinAddress } from '@/lib/utils/validation';
+import { HTTP_STATUS_OK, HTTP_STATUS_INTERNAL_SERVER_ERROR, HttpBadRequestError } from '@/lib/utils/http';
 
 export async function GET(request: NextRequest) {
   try {
+    // Note: In production, payment status info would be persisted in a database
+    // so users could check the confirmation status of their requests at a later time
+    // without having to pass the payment request info in the query params
+    // and confirmed payments would be returned immediately from the database
+    // without requesting the payment status from an external provider
+
     const { searchParams } = new URL(request.url);
-    const address = searchParams.get('address');
-    const amount = searchParams.get('amount');
-    const createdAt = searchParams.get('createdAt');
+    const address = searchParams.get('address')!;
+    const amount = searchParams.get('amount')!;
+    const createdAt = searchParams.get('createdAt')!;
 
-    // Validate required parameters
-    if (!address) {
-      const errorResponse: ApiResponse<never> = {
-        success: false,
-        error: 'Address parameter is required'
-      };
-      return NextResponse.json(errorResponse, { status: 400 });
-    }
+    if (!validatePaymentAmount(amount).isValid) throw new HttpBadRequestError('Invalid amount');
+    if (!validateBitcoinAddress(address).isValid) throw new HttpBadRequestError('Invalid address');
+    if (!validateDate(createdAt).isValid) throw new HttpBadRequestError('Invalid createdAt');
 
-    if (!amount) {
-      const errorResponse: ApiResponse<never> = {
-        success: false,
-        error: 'Amount parameter is required'
-      };
-      return NextResponse.json(errorResponse, { status: 400 });
-    }
-
-    if (!createdAt) {
-      const errorResponse: ApiResponse<never> = {
-        success: false,
-        error: 'CreatedAt parameter is required'
-      };
-      return NextResponse.json(errorResponse, { status: 400 });
-    }
-
-    const paymentService = PaymentService.getInstance();
-
-    // Validate and parse the amount
-    const validatedAmount = paymentService.validateAndParseAmount(amount);
-
-    // Create a payment request object for status checking
+    const parsedAmount = PaymentService.parseAmount(amount);
     const paymentRequest = {
       address,
-      amount: validatedAmount,
+      amount: parsedAmount,
+      paymentUri: PaymentService.createPaymentUri(address, parsedAmount),
       createdAt: new Date(createdAt),
       label: 'Status Check'
     };
 
-    // Check payment status
-    const paymentStatus = await paymentService.checkPaymentStatus(paymentRequest);
+    const paymentReceipt = await PaymentService.checkPaymentStatus(paymentRequest);
 
-    const response: ApiResponse<PaymentStatus> = {
+    const response: ApiResponse<PaymentReceipt | undefined> = {
       success: true,
-      data: paymentStatus
+      data: paymentReceipt
     };
 
-    return NextResponse.json(response, { status: 200 });
-  } catch (error) {
+    return NextResponse.json(response, { status: HTTP_STATUS_OK });
+  } catch (error: any) {
     console.error('Error checking payment status:', error);
-
-    // Handle rate limiting specifically
-    if (error instanceof MempoolApiError) {
-      const errorResponse: ApiErrorResponse = {
-        success: false,
-        error: error.message,
-        apiError: error.apiError
-      };
-      return NextResponse.json(errorResponse, { status: 429 });
-    }
 
     const errorResponse: ApiErrorResponse = {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to check payment status'
+      error: error.message || 'Failed to check payment status',
+      retryAfter: error.retryAfter
     };
 
-    return NextResponse.json(errorResponse, { status: 500 });
+    return NextResponse.json(errorResponse, { status: error.status || HTTP_STATUS_INTERNAL_SERVER_ERROR });
   }
 }
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { address, sinceTimestamp } = body;
-
-    // Validate required fields
-    if (!address) {
-      const errorResponse: ApiResponse<never> = {
-        success: false,
-        error: 'Address is required'
-      };
-      return NextResponse.json(errorResponse, { status: 400 });
-    }
-
-    const paymentService = PaymentService.getInstance();
-
-    // Use current timestamp if not provided
-    const timestamp = sinceTimestamp || Math.floor(Date.now() / 1000);
-
-    // Monitor address for any payments
-    const monitorResult = await paymentService.monitorAddress(address, timestamp);
-
-    const response: ApiResponse<typeof monitorResult> = {
-      success: true,
-      data: monitorResult
-    };
-
-    return NextResponse.json(response, { status: 200 });
-  } catch (error) {
-    console.error('Error monitoring address:', error);
-
-    const errorResponse: ApiResponse<never> = {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to monitor address'
-    };
-
-    return NextResponse.json(errorResponse, { status: 500 });
-  }
-} 

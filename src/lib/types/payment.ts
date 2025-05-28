@@ -1,22 +1,16 @@
 export interface PaymentRequest {
   address: string;
   amount: number; // in BTC
+  paymentUri: string;
   label?: string;
   message?: string;
   createdAt: Date;
 }
 
-export interface PaymentRequestPayload {
-  paymentRequest: PaymentRequest;
-  paymentUri: string;
-}
-
-export interface PaymentStatus {
-  address: string;
+export interface PaymentReceipt {
   amount: number;
-  status: 'pending' | 'confirmed' | 'failed';
-  transactionId?: string;
-  confirmations?: number;
-  receivedAmount?: number;
-  receivedAt?: Date;
+  transactionId: string;
+  confirmations: number;
+  timestamp: number;
+  confirmed: boolean;
 }

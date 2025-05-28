@@ -242,10 +242,10 @@ src/
 
 ## 7. Success Metrics
 
-- [ ] Wallet generation works consistently
-- [ ] QR codes display correctly and are scannable
-- [ ] Payment detection works within 30 seconds of transaction broadcast
-- [ ] UI is responsive on mobile and desktop
+- [x] Wallet generation works consistently
+- [x] QR codes display correctly and are scannable
+- [x] Payment detection works within 30 seconds of transaction broadcast
+- [x] UI is responsive on mobile and desktop
 - [ ] All error states are handled gracefully
 - [ ] Code is clean, modular, and well-documented
 

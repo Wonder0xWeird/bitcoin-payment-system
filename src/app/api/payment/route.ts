@@ -1,62 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PaymentService } from '@/lib/services/PaymentService';
-import { ApiResponse, PaymentRequestPayload } from '@/lib/types';
+import { ApiErrorResponse, ApiResponse, PaymentRequest } from '@/lib/types';
+import { HttpBadRequestError, HTTP_STATUS_INTERNAL_SERVER_ERROR } from '@/lib/utils/http';
+import { validateBitcoinAddress, validatePaymentAmount } from '@/lib/utils/validation';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { address, amount, label, message } = body;
 
-    // Validate required fields
-    if (!address) {
-      const errorResponse: ApiResponse<never> = {
-        success: false,
-        error: 'Address is required'
-      };
-      return NextResponse.json(errorResponse, { status: 400 });
-    }
+    if (!validatePaymentAmount(amount).isValid) throw new HttpBadRequestError('Invalid amount');
+    if (!validateBitcoinAddress(address).isValid) throw new HttpBadRequestError('Invalid address');
 
-    if (!amount) {
-      const errorResponse: ApiResponse<never> = {
-        success: false,
-        error: 'Amount is required'
-      };
-      return NextResponse.json(errorResponse, { status: 400 });
-    }
+    const paymentRequest = PaymentService.createPaymentRequest(address, amount, label, message);
 
-    const paymentService = PaymentService.getInstance();
+    // Note: In production, payment request info would be persisted in a database
+    // so users could check the confirmation status of their requests at a later time
 
-    // Validate and parse the amount
-    const validatedAmount = paymentService.validateAndParseAmount(amount);
-
-    // Create payment request
-    const paymentRequest = paymentService.createPaymentRequest(
-      address,
-      validatedAmount,
-      label,
-      message
-    );
-
-    // Generate payment URI for QR code
-    const paymentUri = paymentService.generatePaymentUri(paymentRequest);
-
-    const response: ApiResponse<PaymentRequestPayload> = {
+    const response: ApiResponse<PaymentRequest> = {
       success: true,
-      data: {
-        paymentRequest,
-        paymentUri
-      }
+      data: paymentRequest
     };
 
     return NextResponse.json(response, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating payment request:', error);
 
-    const errorResponse: ApiResponse<never> = {
+    const errorResponse: ApiErrorResponse = {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to create payment request'
+      error: error.message || 'Failed to create payment request'
     };
 
-    return NextResponse.json(errorResponse, { status: 400 });
+    return NextResponse.json(errorResponse, { status: error.status || HTTP_STATUS_INTERNAL_SERVER_ERROR });
   }
 } 
