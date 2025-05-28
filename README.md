@@ -220,4 +220,4 @@ This project is licensed under the MIT License
 
 ---
 
-**⚠️ Disclaimer**: This is a demonstration application for demonstration purposes only. Do not use with real Bitcoin or in production environments without proper security audits.
+**⚠️ Disclaimer**: This application is for demonstration purposes only. Do not use with real Bitcoin or in production environments without proper security audits.
