@@ -52,7 +52,7 @@ export function Form() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', },
         body: JSON.stringify({
-          address: 'tb1q4xvtdd3yq2rnz98gylh3l09jqhmy39pyz62k7z',
+          address: wallet.address,
           amount,
           label: 'Bitcoin Payment Request',
           message: 'Payment request created via BTC Pay App'
