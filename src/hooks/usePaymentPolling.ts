@@ -19,9 +19,10 @@ interface PaymentPollingResult {
 export function usePaymentPolling(paymentRequest: PaymentRequest | null): PaymentPollingResult {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
+  const receiptRef = useRef<PaymentReceipt | null>(null);
 
   const maxAttempts = 180;
-  const baseInterval = 60000;
+  const baseInterval = 10000;
 
   const [receipt, setReceipt] = useState<PaymentReceipt | null>(null);
   const [isPolling, setIsPolling] = useState(false);
@@ -97,8 +98,9 @@ export function usePaymentPolling(paymentRequest: PaymentRequest | null): Paymen
       const data: ApiResponse<PaymentReceipt> = await response.json();
 
       if (data.success) {
-        if (!receipt) toast.success('Payment received! Confirming...', { icon: '₿' });
+        if (!receiptRef.current && data.data) toast.success('Payment received! Confirming...', { icon: '₿' });
 
+        receiptRef.current = data.data;
         setReceipt(data.data);
         setPollError(null);
         setIsRateLimited(false);
@@ -127,7 +129,7 @@ export function usePaymentPolling(paymentRequest: PaymentRequest | null): Paymen
           setCurrentInterval(retryAfter);
           startCountdown(retryAfter);
 
-          console.warn(`⚠️ Rate limited. Waiting ${retryAfter / 1000}s before next attempt.`);
+          console.error(`⚠️ Rate limited. Waiting ${retryAfter / 1000}s before next attempt.`);
           toast.error(`Rate limited. Waiting ${retryAfter / 1000}s before next attempt.`);
 
           if (intervalRef.current) {
