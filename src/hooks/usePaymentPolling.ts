@@ -111,10 +111,7 @@ export function usePaymentPolling(paymentRequest: PaymentRequest): PaymentPollin
 
         if (data.data?.confirmed) {
           stopPolling();
-          toast.success('Payment received!', {
-            icon: '₿',
-            duration: 5000,
-          });
+          toast.success('Payment received!', { icon: '₿' });
         }
       } else {
         if (response.status === 429) {
@@ -129,9 +126,7 @@ export function usePaymentPolling(paymentRequest: PaymentRequest): PaymentPollin
           startCountdown(retryAfter);
 
           console.warn(`⚠️ Rate limited. Waiting ${retryAfter / 1000}s before next attempt.`);
-          toast.error(`Rate limited. Waiting ${retryAfter / 1000}s before next attempt.`, {
-            duration: 5000,
-          });
+          toast.error(`Rate limited. Waiting ${retryAfter / 1000}s before next attempt.`);
 
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -146,9 +141,7 @@ export function usePaymentPolling(paymentRequest: PaymentRequest): PaymentPollin
     } catch (error: any) {
       const errorMessage = error.message || 'Unknown error occurred';
       setPollError(errorMessage);
-      toast.error(`Payment monitoring error: ${errorMessage}`, {
-        duration: 5000,
-      });
+      toast.error(`Payment monitoring error: ${errorMessage}`);
     }
 
     setAttempts(prev => prev + 1);
@@ -173,9 +166,7 @@ export function usePaymentPolling(paymentRequest: PaymentRequest): PaymentPollin
     if (isPolling && attempts >= maxAttempts) {
       stopPolling();
       setPollError('Maximum polling attempts reached');
-      toast.error(`Payment monitoring timed out`, {
-        duration: 5000,
-      });
+      toast.error(`Payment monitoring timed out`);
     }
   }, [attempts, isPolling]);
 

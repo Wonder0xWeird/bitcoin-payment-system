@@ -29,10 +29,10 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
         <Toaster
           position="bottom-right"
           toastOptions={{
-            duration: 4000,
+            duration: 5000,
             style: {
               background: '#363636',
-              color: '#fff',
+              color: '#eee',
             },
           }}
         />

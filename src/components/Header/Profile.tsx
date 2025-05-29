@@ -23,10 +23,7 @@ export function Profile() {
       if (data.success) {
         setWallet(data.data);
         setState('form');
-        toast.success('New wallet generated!', {
-          icon: '🔑',
-          duration: 3000,
-        });
+        toast.success('New wallet generated!', { icon: '🔑' });
       } else {
         throw new Error(data.error || 'Failed to generate wallet');
       }

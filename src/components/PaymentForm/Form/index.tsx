@@ -63,10 +63,7 @@ export function Form() {
       if (data.success) {
         setPaymentRequest(data.data);
         setState('monitoring');
-        toast.success('Payment request created! Monitoring payments...', {
-          icon: '📱',
-          duration: 5000,
-        });
+        toast.success('Request created! Monitoring...', { icon: '📱' });
       } else {
         throw new Error(data.error || 'Failed to create payment request');
       }

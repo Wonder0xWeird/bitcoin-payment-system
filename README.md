@@ -78,13 +78,13 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
 - Click "Create Payment Request" to generate the request
 
 ### 3. Share Payment Information
-- **QR Code**: Scan with any Bitcoin wallet app
+- **QR Code**: Scan with any Bitcoin wallet app with support for Testnet4
 - **Address**: Copy the Bitcoin address for manual entry
 - **BIP21 URI**: Complete payment URI with amount and metadata
 - **Open in Wallet**: Direct link to open in default Bitcoin wallet
 
 ### 4. Monitor Payment Status
-- Click "Start Payment Monitoring" to begin real-time monitoring
+- Payment monitoring initiates automatically upon payment request creation
 - System checks for payments every 60 seconds
 - Pause/Resume/Restart monitoring with the control buttons
 - Receive instant notifications when payments arrive
@@ -103,12 +103,14 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
 
 The application can be tested using:
 
-1. **Bitcoin Testnet4 Faucets**:
+1. **Bitcoin Wallet**:
+   - Any Bitcoin wallet application supporting Testnet4
+      - Example: [BitPay Testnet4 Wallet Setup](https://support.bitpay.com/hc/en-us/articles/360015463612-How-to-Create-a-Testnet-Wallet)
+
+2. **Bitcoin Testnet4 Faucet**:
    - [Mempool.space Testnet4 Faucet](https://mempool.space/testnet4/faucet)
 
-2. **Wallet Apps**:
-   - Any Bitcoin wallet supporting Testnet4
-      - Example: [BitPay Testnet4 Wallet Setup](https://support.bitpay.com/hc/en-us/articles/360015463612-How-to-Create-a-Testnet-Wallet)
+
 
 
 ## 🛡 Security Features
@@ -120,8 +122,7 @@ The application can be tested using:
 
 ## ⚠️ Important Notes
 
-- **Testnet4 Only**: This application only works with Bitcoin testnet4
-- **Educational Purpose**: Built for learning and demonstration
+- **Demonstration Purpose**: Built for learning and demonstration
 - **No Persistence**: Wallets are ephemeral and not stored between sessions
 - **No API Key Required**: Uses mempool.space which provides generous free API limits
 
@@ -200,7 +201,7 @@ src/
 │       └── http.ts               # HTTP utilities & errors
 ```
 
-### Cursor + Claude 4.0 Dev Logs
+## 🤖 Cursor + Claude 4.0 Dev Logs
 
 The initial project planning and scaffolding was completed with assistance from Claude 4.0 in Cursor.
 
