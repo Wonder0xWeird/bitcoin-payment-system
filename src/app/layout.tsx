@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bitcoin Payment System",
-  description: "Bitcoin testnet payment system with QR codes and real-time monitoring",
+  title: "BTC Pay",
+  description: "Bitcoin Testnet4 payment system with QR codes and real-time monitoring",
 };
 
 export default function RootLayout({ children, }: Readonly<{ children: React.ReactNode }>) {
