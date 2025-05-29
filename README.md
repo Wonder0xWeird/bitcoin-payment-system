@@ -91,14 +91,6 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
 - Track confirmations of received payments direclty in the app
 - View transaction details on Mempool.space blockchain explorer
 
-## 🔑 Bitcoin Standards Implemented
-- **BIP32**: Hierarchical Deterministic Wallets
-- **BIP39**: Mnemonic code for generating deterministic keys
-- **BIP44**: Multi-Account Hierarchy for Deterministic Wallets
-- **BIP21**: URI Scheme for Bitcoin payments
-- **P2WPKH**: Pay to Witness Public Key Hash (SegWit)
-
-
 ## 🧪 Testing
 
 The application can be tested using:
@@ -111,6 +103,12 @@ The application can be tested using:
    - [Mempool.space Testnet4 Faucet](https://mempool.space/testnet4/faucet)
 
 
+## 🔑 Bitcoin Standards Implemented
+- **BIP32**: Hierarchical Deterministic Wallets
+- **BIP39**: Mnemonic code for generating deterministic keys
+- **BIP44**: Multi-Account Hierarchy for Deterministic Wallets
+- **BIP21**: URI Scheme for Bitcoin payments
+- **P2WPKH**: Pay to Witness Public Key Hash (SegWit)
 
 
 ## 🛡 Security Features
