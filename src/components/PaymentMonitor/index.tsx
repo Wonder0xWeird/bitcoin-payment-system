@@ -37,7 +37,7 @@ export function PaymentMonitor() {
     <div className="card">
       <Header isPolling={isPolling} />
       {pollError && <PollError pollError={pollError} />}
-      {isRateLimited && <RateLimitError nextAttemptIn={nextAttemptIn} />}
+      {isRateLimited && <RateLimitError />}
       <Status receipt={receipt} isPolling={isPolling} attempts={attempts} maxAttempts={maxAttempts} currentInterval={currentInterval} isRateLimited={isRateLimited} nextAttemptIn={nextAttemptIn} />
       <ControllButtons isPolling={isPolling} stopPolling={stopPolling} startPolling={startPolling} resetPolling={resetPolling} />
       <RequestInfo paymentRequest={paymentRequest} />

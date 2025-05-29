@@ -66,11 +66,11 @@ export function Form() {
       } else {
         throw new Error(data.error || 'Failed to create payment request');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating payment request:', error);
       toast.error('Failed to create payment request. Please try again.');
-      setFormError(error.message || 'Failed to create payment request');
-      setAppError(error.message || 'Failed to create payment request');
+      setFormError(error instanceof Error ? error.message : 'Failed to create payment request');
+      setAppError(error instanceof Error ? error.message : 'Failed to create payment request');
       setState('error');
     } finally {
       setIsCreatingPayment(false);

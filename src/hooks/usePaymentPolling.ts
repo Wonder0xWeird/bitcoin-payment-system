@@ -66,7 +66,7 @@ export function usePaymentPolling(paymentRequest: PaymentRequest | null): Paymen
       countdownRef.current = null;
     }
 
-    let remainingSeconds = Math.ceil(delayMs / 1000);
+    const remainingSeconds = Math.ceil(delayMs / 1000);
     setNextAttemptIn(remainingSeconds);
 
     countdownRef.current = setInterval(() => {
@@ -138,8 +138,8 @@ export function usePaymentPolling(paymentRequest: PaymentRequest | null): Paymen
           throw new Error(data.error || 'Failed to check payment status');
         }
       }
-    } catch (error: any) {
-      const errorMessage = error.message || 'Unknown error occurred';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setPollError(errorMessage);
       toast.error(`Payment monitoring error: ${errorMessage}`);
     }

@@ -1,5 +1,5 @@
 import axios, { AxiosResponse, isAxiosError } from "axios";
-import { AddressInfo, MempoolAddressInfo, MempoolTransaction, MempoolTXOutput, MempoolUTXO, UTXO } from "../types";
+import { AddressInfo, MempoolAddressInfo, MempoolTransaction, MempoolUTXO, UTXO } from "../types";
 import { HTTP_STATUS_TOO_MANY_REQUESTS, HttpInternalServerError, HttpRateLimitError } from "../utils/http";
 
 export class MempoolRateLimitError extends HttpRateLimitError {

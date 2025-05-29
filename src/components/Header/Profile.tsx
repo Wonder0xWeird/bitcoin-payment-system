@@ -27,10 +27,10 @@ export function Profile() {
       } else {
         throw new Error(data.error || 'Failed to generate wallet');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error generating wallet:', error);
       toast.error('Failed to generate wallet. Please try again.');
-      setAppError(error.message || 'Failed to generate wallet');
+      setAppError(error instanceof Error ? error.message : 'Failed to generate wallet');
       setState('error');
     }
   };

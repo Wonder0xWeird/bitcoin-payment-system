@@ -1,12 +1,15 @@
+import Image from 'next/image';
+
 export function Branding() {
   return (
     <div className="flex items-center gap-3">
       <div className="p-2 rounded-lg">
-        <img
+        <Image
           src="/blockchain-com-logo.svg"
           alt="Blockchain.com Logo"
           width={200}
           height={200}
+          priority
         />
       </div>
       <div>

@@ -23,14 +23,14 @@ export async function POST(request: NextRequest) {
     };
 
     return NextResponse.json(response, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating payment request:', error);
 
     const errorResponse: ApiErrorResponse = {
       success: false,
-      error: error.message || 'Failed to create payment request'
+      error: error instanceof Error ? error.message : 'Failed to create payment request'
     };
 
-    return NextResponse.json(errorResponse, { status: error.status || HTTP_STATUS_INTERNAL_SERVER_ERROR });
+    return NextResponse.json(errorResponse, { status: HTTP_STATUS_INTERNAL_SERVER_ERROR });
   }
 } 

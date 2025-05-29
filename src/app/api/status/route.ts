@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PaymentService } from '@/lib/services/PaymentService';
 import { ApiErrorResponse, ApiResponse, PaymentReceipt } from '@/lib/types';
 import { validatePaymentAmount, validateDate, validateBitcoinAddress } from '@/lib/utils/validation';
-import { HTTP_STATUS_OK, HTTP_STATUS_INTERNAL_SERVER_ERROR, HttpBadRequestError } from '@/lib/utils/http';
+import { HTTP_STATUS_OK, HTTP_STATUS_INTERNAL_SERVER_ERROR, HttpBadRequestError, HttpError } from '@/lib/utils/http';
+import { MempoolRateLimitError } from '@/lib/services/MempoolHttpService';
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,15 +39,15 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json(response, { status: HTTP_STATUS_OK });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error checking payment status:', error);
 
     const errorResponse: ApiErrorResponse = {
       success: false,
-      error: error.message || 'Failed to check payment status',
-      retryAfter: error.retryAfter
+      error: error instanceof Error ? error.message : 'Failed to check payment status',
+      retryAfter: error instanceof MempoolRateLimitError ? error.retryAfter : undefined
     };
 
-    return NextResponse.json(errorResponse, { status: error.status || HTTP_STATUS_INTERNAL_SERVER_ERROR });
+    return NextResponse.json(errorResponse, { status: error instanceof HttpError ? error.status : HTTP_STATUS_INTERNAL_SERVER_ERROR });
   }
 }

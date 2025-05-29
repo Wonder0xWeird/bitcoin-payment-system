@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { WalletService } from '@/lib/services/WalletService';
 import { ApiErrorResponse, ApiSuccessResponse, PublicWalletInfo } from '@/lib/types';
-import { HTTP_STATUS_INTERNAL_SERVER_ERROR } from '@/lib/utils/http';
+import { HTTP_STATUS_INTERNAL_SERVER_ERROR, HttpError } from '@/lib/utils/http';
 
 export async function POST() {
   try {
@@ -19,15 +19,15 @@ export async function POST() {
     };
 
     return NextResponse.json(response, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error generating wallet:', error);
 
     const errorResponse: ApiErrorResponse = {
       success: false,
-      error: error.message || 'Failed to generate wallet'
+      error: error instanceof Error ? error.message : 'Failed to generate wallet'
     };
 
-    return NextResponse.json(errorResponse, { status: error.status || HTTP_STATUS_INTERNAL_SERVER_ERROR });
+    return NextResponse.json(errorResponse, { status: error instanceof HttpError ? error.status : HTTP_STATUS_INTERNAL_SERVER_ERROR });
   }
 }
 

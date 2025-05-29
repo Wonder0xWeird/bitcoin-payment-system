@@ -34,6 +34,7 @@ export function validatePaymentAmount(amount: string | number | null): Validatio
     if (!isValidBtcAmount(parsedAmount)) return { isValid: false, error: 'Invalid Bitcoin amount' };
     return { isValid: true };
   } catch (error) {
+    console.error('Error validating payment amount:', error);
     return { isValid: false, error: 'Invalid amount' };
   }
 }
@@ -46,6 +47,7 @@ export function validateBitcoinAddress(address: string | null): ValidationResult
     if (!isValidBitcoinAddress(address.trim())) return { isValid: false, error: 'Invalid Bitcoin address format' };
     return { isValid: true };
   } catch (error) {
+    console.error('Error validating Bitcoin address:', error);
     return { isValid: false, error: 'Invalid address' };
   }
 }
@@ -57,6 +59,7 @@ export function validateDate(date: string | null): ValidationResult {
     if (isNaN(new Date(date).getTime())) return { isValid: false, error: 'Invalid date format' };
     return { isValid: true };
   } catch (error) {
+    console.error('Error validating date:', error);
     return { isValid: false, error: 'Invalid date' };
   }
 }
