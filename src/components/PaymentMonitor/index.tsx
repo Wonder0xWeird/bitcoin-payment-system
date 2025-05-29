@@ -13,12 +13,6 @@ import { RequestInfo } from './RequestInfo';
 export function PaymentMonitor() {
   const { paymentRequest, setState, setAppError } = useApp();
 
-  if (!paymentRequest) {
-    setAppError('No payment request available, please create a new payment request.');
-    setState('error');
-    return;
-  }
-
   const {
     receipt,
     isPolling,
@@ -32,6 +26,12 @@ export function PaymentMonitor() {
     stopPolling,
     resetPolling,
   } = usePaymentPolling(paymentRequest);
+
+  if (!paymentRequest) {
+    setAppError('No payment request available, please create a new payment request.');
+    setState('error');
+    return;
+  }
 
   return (
     <div className="card">

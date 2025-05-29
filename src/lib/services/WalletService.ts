@@ -1,11 +1,76 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import * as bip39 from 'bip39';
 import BIP32Factory, { BIP32API } from 'bip32';
-import * as ecc from 'tiny-secp256k1';
+import * as nobleSecp256k1 from '@noble/secp256k1';
 import { BIP32Interface } from 'bip32';
 import { HDWallet } from '@/lib/types';
 import { TESTNET, TESTNET_DERIVATION_PATH } from '@/lib/utils/bitcoin';
 import { HttpInternalServerError, HttpBadRequestError } from '@/lib/utils/http';
+import { hmac } from '@noble/hashes/hmac';
+import { sha256 } from '@noble/hashes/sha256';
+
+// Enable synchronous methods for noble/secp256k1
+nobleSecp256k1.etc.hmacSha256Sync = (k: Uint8Array, ...m: Uint8Array[]) =>
+  hmac(sha256, k, nobleSecp256k1.etc.concatBytes(...m));
+
+// Create adapter for @noble/secp256k1 to work with bip32
+const ecc = {
+  isPoint: (p: Uint8Array): boolean => {
+    try {
+      nobleSecp256k1.ProjectivePoint.fromHex(p);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  isPrivate: (d: Uint8Array): boolean => {
+    try {
+      return nobleSecp256k1.utils.isValidPrivateKey(d);
+    } catch {
+      return false;
+    }
+  },
+  pointFromScalar: (d: Uint8Array, compressed?: boolean): Uint8Array | null => {
+    try {
+      return nobleSecp256k1.getPublicKey(d, compressed ?? true);
+    } catch {
+      return null;
+    }
+  },
+  pointAddScalar: (p: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null => {
+    try {
+      const point = nobleSecp256k1.ProjectivePoint.fromHex(p);
+      const tweakPoint = nobleSecp256k1.ProjectivePoint.fromPrivateKey(tweak);
+      return point.add(tweakPoint).toRawBytes(compressed ?? true);
+    } catch {
+      return null;
+    }
+  },
+  privateAdd: (d: Uint8Array, tweak: Uint8Array): Uint8Array | null => {
+    try {
+      const privateKeyBigInt = nobleSecp256k1.etc.bytesToNumberBE(d);
+      const tweakBigInt = nobleSecp256k1.etc.bytesToNumberBE(tweak);
+      const result = (privateKeyBigInt + tweakBigInt) % nobleSecp256k1.CURVE.n;
+
+      if (result === BigInt(0)) return null; // Invalid private key
+
+      return nobleSecp256k1.etc.numberToBytesBE(result);
+    } catch {
+      return null;
+    }
+  },
+  sign: (h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array => {
+    const sig = nobleSecp256k1.sign(h, d, { extraEntropy: e });
+    return sig.toCompactRawBytes();
+  },
+  verify: (h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean => {
+    try {
+      return nobleSecp256k1.verify(signature, h, Q);
+    } catch {
+      return false;
+    }
+  },
+};
 
 // Initialize BIP32 with elliptic curve implementation
 const bip32: BIP32API = BIP32Factory(ecc);

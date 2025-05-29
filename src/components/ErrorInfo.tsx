@@ -1,7 +1,7 @@
 import { useApp } from "./ApplicationProvider";
 
 export function ErrorInfo() {
-  const { appError, setState, setPaymentRequest } = useApp();
+  const { setState, setPaymentRequest, appError } = useApp();
 
   return (
     <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8">

@@ -10,16 +10,15 @@ import { SubmitButton } from "./SubmitButton";
 export function Form() {
   const { wallet, setState, setAppError, setPaymentRequest } = useApp();
 
+  const [isCreatingPayment, setIsCreatingPayment] = useState(false);
+  const [amount, setAmount] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
+
   if (!wallet) {
     setAppError('No wallet available. Please generate a new wallet.');
     setState('error');
     return;
   }
-
-  const [isCreatingPayment, setIsCreatingPayment] = useState(false);
-  const [amount, setAmount] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
-
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const sanitizedValue = sanitizeAmountInput(e.target.value);

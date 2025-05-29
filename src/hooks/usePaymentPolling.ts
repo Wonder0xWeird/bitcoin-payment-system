@@ -16,7 +16,7 @@ interface PaymentPollingResult {
   resetPolling: () => void;
 }
 
-export function usePaymentPolling(paymentRequest: PaymentRequest): PaymentPollingResult {
+export function usePaymentPolling(paymentRequest: PaymentRequest | null): PaymentPollingResult {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
