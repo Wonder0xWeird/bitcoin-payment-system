@@ -97,6 +97,8 @@ export function usePaymentPolling(paymentRequest: PaymentRequest | null): Paymen
       const data: ApiResponse<PaymentReceipt> = await response.json();
 
       if (data.success) {
+        if (!receipt) toast.success('Payment received! Confirming...', { icon: '₿' });
+
         setReceipt(data.data);
         setPollError(null);
         setIsRateLimited(false);
@@ -111,7 +113,7 @@ export function usePaymentPolling(paymentRequest: PaymentRequest | null): Paymen
 
         if (data.data?.confirmed) {
           stopPolling();
-          toast.success('Payment received!', { icon: '₿' });
+          toast.success('Payment confirmed!', { icon: '₿' });
         }
       } else {
         if (response.status === 429) {
