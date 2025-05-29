@@ -14,36 +14,15 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
 - **Error Handling**: Comprehensive error handling with user-friendly error messages
 
 
-## 🛠 Tech Stack
+## 🔧 Installation
 
-### Frontend
-- **TypeScript** - Type-safe development
-- **Next.js 15.3** - Single Page App via React framework
-- **Tailwind CSS v3** - Utility-first CSS framework
-- **Lucide React** - Modern icon library
-- **React Hot Toast** - Toast notification system
-- **QRCode.react** - QR code generation
-
-### Backend
-- **Next.js API Routes** - Serverless functions
-- **bitcoinjs-lib v6.1.7** - Bitcoin operations and address generation
-- **bip39 v3.1.0** - Mnemonic phrase generation
-- **bip32 v5.0.0-rc.0** - HD wallet derivation
-- **tiny-secp256k1 v2.2.3** - Elliptic curve cryptography
-
-### External Services
-- **Mempool.space API** - Bitcoin Testnet4 blockchain REST API (no API key required)
-- **Bitcoin Testnet4** - Modern, active testing environment
-
-
-## 📋 Prerequisites
+### 📋 Prerequisites
 
 - Node.js 18.18.0 or higher (Next.js 15 requirement)
 - npm or yarn package manager
 - Modern web browser with JavaScript enabled
 
-
-## 🔧 Installation
+### 📝 Instructions
 
 1. **Clone the repository**
    ```bash
@@ -102,6 +81,29 @@ The application can be tested using:
 2. **Bitcoin Testnet4 Faucet**:
    - [Mempool.space Testnet4 Faucet](https://mempool.space/testnet4/faucet)
 
+
+# ⚙️ Implementation Details
+
+## 🛠 Tech Stack
+
+### Frontend
+- **TypeScript** - Type-safe development
+- **Next.js 15.3** - Single Page App via React framework
+- **Tailwind CSS v3** - Utility-first CSS framework
+- **Lucide React** - Modern icon library
+- **React Hot Toast** - Toast notification system
+- **QRCode.react** - QR code generation
+
+### Backend
+- **Next.js API Routes** - Serverless functions
+- **bitcoinjs-lib v6.1.7** - Bitcoin operations and address generation
+- **bip39 v3.1.0** - Mnemonic phrase generation
+- **bip32 v5.0.0-rc.0** - HD wallet derivation
+- **tiny-secp256k1 v2.2.3** - Elliptic curve cryptography
+
+### External Services
+- **Mempool.space API** - Bitcoin Testnet4 blockchain REST API (no API key required)
+- **Bitcoin Testnet4** - Modern, active testing environment
 
 ## 🔑 Bitcoin Standards Implemented
 - **BIP32**: Hierarchical Deterministic Wallets
