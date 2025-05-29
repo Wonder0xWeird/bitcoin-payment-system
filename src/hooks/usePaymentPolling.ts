@@ -21,8 +21,8 @@ export function usePaymentPolling(paymentRequest: PaymentRequest | null): Paymen
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
   const receiptRef = useRef<PaymentReceipt | null>(null);
 
-  const maxAttempts = 180;
-  const baseInterval = 10000;
+  const maxAttempts = 240;
+  const baseInterval = 15000;
 
   const [receipt, setReceipt] = useState<PaymentReceipt | null>(null);
   const [isPolling, setIsPolling] = useState(false);
