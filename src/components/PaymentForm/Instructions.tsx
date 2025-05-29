@@ -9,6 +9,7 @@ export function Instructions() {
         <li>• A QR code will be generated for easy sharing</li>
         <li>• The system will monitor for incoming payments</li>
         <li>• You&apos;ll be notified when payment is received</li>
+        <li>• For more info on setup and testing see the <a href="https://github.com/Wonder0xWeird/bitcoin-payment-system" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600 dark:hover:text-blue-200">README</a></li>
       </ul>
     </div>
   );
