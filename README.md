@@ -44,6 +44,11 @@ A modern, full-stack Bitcoin payment system built with Next.js, featuring HD wal
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 
+### Staging Environment
+
+To test and explore a staged production version of the app deployed to Vercel, visit [https://btc-pay-w0nd3rs-projects.vercel.app/](https://btc-pay-w0nd3rs-projects.vercel.app/)
+
+
 ## 📱 Usage Guide
 
 ### 1. Wallet Generation
@@ -81,6 +86,7 @@ The application can be tested using:
 2. **Bitcoin Testnet4 Faucet**:
    - [Mempool.space Testnet4 Faucet](https://mempool.space/testnet4/faucet)
 
+---
 
 # ⚙️ Implementation Details
 
@@ -111,7 +117,6 @@ The application can be tested using:
 - **BIP44**: Multi-Account Hierarchy for Deterministic Wallets
 - **BIP21**: URI Scheme for Bitcoin payments
 - **P2WPKH**: Pay to Witness Public Key Hash (SegWit)
-
 
 ## 🛡 Security Features
 
